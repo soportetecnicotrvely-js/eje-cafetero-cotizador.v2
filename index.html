@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cotizador V2 · Eje Cafetero Recargado</title>
+<meta name="description" content="Cotiza tu viaje al Eje Cafetero: elige la salida, la acomodación y recibe el valor exacto por persona." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+<style>
+  /* Fondo de esta página cuando se usa suelta (ej. dentro de un iframe).
+     No es parte del widget. */
+  body { margin: 0; padding: 48px 20px; background: #faf4ec; font-family: "Montserrat", sans-serif; }
+</style>
+</head>
+<body>
+
+  <!-- =====================================================================
+       INICIO DEL WIDGET (V2) — esto es lo único que se copia/inserta dentro
+       de la página descriptiva del destino. Requiere estos 4 <script> y el
+       contenedor vacío.
+       ===================================================================== -->
+  <div id="eje-cafetero-cotizador-v2"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="config.js"></script>
+  <script src="data.js"></script>
+  <script src="app.js" defer></script>
+  <!-- ===================== FIN DEL WIDGET (V2) ===================== -->
+
+</body>
+</html>
