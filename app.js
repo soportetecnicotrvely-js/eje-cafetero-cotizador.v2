@@ -367,7 +367,14 @@
       }
 
       const val = (id) => root.querySelector(id).value.trim();
+      // El ref_code se genera AQUÍ, en el navegador, y viaja dentro del mismo
+      // insert. Es el único identificador que el cliente ve en pantalla y el
+      // mismo que usará n8n en los correos — la tabla no permite leer de
+      // vuelta el id interno (ver supabase/schema.sql), así que no podemos
+      // depender de lo que la base de datos "devuelva".
+      const refCode = generateLocalRefCode();
       const payload = {
+        ref_code: refCode,
         destination_slug: "eje-cafetero",
         departure_id: state.selectedDeparture.id,
         departure_label: state.selectedDeparture.etiqueta,
@@ -383,7 +390,8 @@
         phone: val("#cw2-phone"),
         emergency_contact: val("#cw2-emergency_contact"),
         special_requests: val("#cw2-special_requests"),
-        status: "pendiente",
+        // NO se envía `status`: la tabla no le da permiso de escritura a esa
+        // columna desde el navegador (queda en "pendiente" por defecto).
       };
 
       if (!payload.full_name || !payload.document_id || !payload.email || !payload.phone || !payload.emergency_contact) {
@@ -399,12 +407,11 @@
       submitBtn.disabled = true;
       submitBtn.textContent = "Enviando…";
 
-      let refCode = generateLocalRefCode();
       try {
         if (state.supabase) {
-          const { data, error } = await state.supabase.from("prereservations").insert(payload).select().single();
+          // Sin .select(): la tabla es de solo-inserción para el navegador.
+          const { error } = await state.supabase.from("prereservations").insert(payload);
           if (error) throw error;
-          refCode = data.id;
         } else {
           console.info("[DEMO] Prereserva (sin Supabase configurado):", payload);
         }
@@ -414,7 +421,7 @@
           fetch(webhookUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ...payload, ref_code: refCode }),
+            body: JSON.stringify(payload),
           }).catch((e) => console.warn("No se pudo notificar a n8n directamente:", e));
         }
 
@@ -425,7 +432,9 @@
         root.querySelector("#cw2-done-panel").scrollIntoView({ behavior: "smooth", block: "start" });
       } catch (err) {
         console.error(err);
-        errorEl.textContent = "No pudimos enviar tu prereserva. Intenta de nuevo o escríbenos por WhatsApp.";
+        errorEl.textContent = err?.code === "P0001" && err?.message
+          ? err.message
+          : "No pudimos enviar tu prereserva. Intenta de nuevo o escríbenos por WhatsApp.";
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = "Enviar prereserva";
